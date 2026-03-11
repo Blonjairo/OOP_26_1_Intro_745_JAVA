@@ -9,14 +9,12 @@ public class Workshop {
     }
 
     public int mayorDeTresNumeros(int a, int b, int c) {
-        // primero comparo a con b
         int tmp;
         if(a > b){
             tmp = a;
         } else {
             tmp = b;
         }
-        // ahora comparo el mayor con c
         if(c > tmp){
             tmp = c;
         }
@@ -34,7 +32,6 @@ public class Workshop {
     }
 
     public long factorial(int n) {
-        // el profe dijo que si es negativo toca lanzar la excepcion
         if(n < 0){
             throw new IllegalArgumentException("numero negativo no tiene factorial");
         }
@@ -48,7 +45,6 @@ public class Workshop {
     public boolean esPrimo(int numero) {
         if(numero <= 1) return false;
         if(numero == 2) return true;
-        // recorro desde 2 hasta numero-1 buscando divisores
         for(int i = 2; i <= numero-1; i++){
             if(numero % i == 0){
                 return false;
@@ -58,7 +54,7 @@ public class Workshop {
     }
 
     public int[] serieFibonacci(int n) {
-        if(n < 0) throw new IllegalArgumentException("no puede ser negativo");
+        if(n < 0) throw new IllegalArgumentException("n no puede ser negativo");
         int[] fib = new int[n];
         for(int i = 0; i < n; i++){
             if(i == 0){
@@ -81,7 +77,6 @@ public class Workshop {
     }
 
     public double promedioElementos(int[] arreglo) {
-        // sumo todo y divido, casteo a double para que no pierda decimales
         int sum = 0;
         for(int x : arreglo){
             sum += x;
@@ -176,14 +171,14 @@ public class Workshop {
         return nuevo;
     }
 
+    // rota a la derecha
     public int[] rotarArreglo(int[] arreglo, int posiciones) {
-        // si el arreglo esta vacio retorno lo mismo
         if(arreglo.length == 0) return arreglo;
         int n = arreglo.length;
+        int rot = posiciones % n;
         int[] rotado = new int[n];
         for(int i = 0; i < n; i++){
-            int nuevaPos = (i + posiciones) % n;
-            rotado[i] = arreglo[nuevaPos];
+            rotado[(i + rot) % n] = arreglo[i];
         }
         return rotado;
     }
@@ -192,18 +187,15 @@ public class Workshop {
         return cadena.length();
     }
 
+    // uso StringBuilder porque maneja bien caracteres especiales
     public String invertirCadena(String cadena) {
-        String al_reves = "";
-        for(int i = cadena.length()-1; i >= 0; i--){
-            al_reves += cadena.charAt(i);
-        }
-        return al_reves;
+        return new StringBuilder(cadena).reverse().toString();
     }
 
+    // ignorar mayusculas y espacios/puntuacion segun el test
     public boolean esPalindromo(String cadena) {
-        // ignorar mayusculas segun el test
-        String s = cadena.toLowerCase();
-        String rev = invertirCadena(s);
+        String s = cadena.toLowerCase().replaceAll("[^a-z0-9]", "");
+        String rev = new StringBuilder(s).reverse().toString();
         if(s.equals(rev)){
             return true;
         }
@@ -212,7 +204,7 @@ public class Workshop {
 
     public int contarPalabras(String cadena) {
         if(cadena == null || cadena.trim().length() == 0) return 0;
-        String[] w = cadena.trim().split("\\s+");
+        String[] w = cadena.trim().split("[\\s]+");
         return w.length;
     }
 
@@ -229,27 +221,31 @@ public class Workshop {
     }
 
     public int buscarSubcadena(String cadena, String subcadena) {
-        // indexOf ya hace esto, si no esta retorna -1
         return cadena.indexOf(subcadena);
     }
 
+    // validacion mas estricta del correo
     public boolean validarCorreoElectronico(String correo) {
         if(correo == null || correo.length() == 0) return false;
 
-        // tiene que tener @
         int posArroba = correo.indexOf("@");
         if(posArroba == -1) return false;
-
-        // tiene que haber algo antes del @
         if(posArroba == 0) return false;
+
+        // no puede haber mas de un @
+        if(correo.indexOf("@", posArroba + 1) != -1) return false;
 
         String despuesArroba = correo.substring(posArroba + 1);
 
-        // tiene que haber un punto despues del @
+        if(despuesArroba.length() == 0) return false;
+        if(despuesArroba.startsWith(".")) return false;
         if(!despuesArroba.contains(".")) return false;
-
-        // el punto no puede ser al final
         if(despuesArroba.endsWith(".")) return false;
+
+        // tiene que haber algo despues del ultimo punto
+        int ultimoPunto = despuesArroba.lastIndexOf(".");
+        if(ultimoPunto == despuesArroba.length() - 1) return false;
+        if(despuesArroba.substring(ultimoPunto + 1).length() < 2) return false;
 
         return true;
     }
@@ -263,12 +259,19 @@ public class Workshop {
         return (double) suma / lista.size();
     }
 
+    // para negativos retorna el signo + binario del valor absoluto
     public String convertirABinario(int numero) {
+        if(numero < 0){
+            return "-" + Integer.toBinaryString(-numero);
+        }
         return Integer.toBinaryString(numero);
     }
 
+    // igual para hexadecimal con negativos
     public String convertirAHexadecimal(int numero) {
-        // toHexString lo da en minuscula, hay que pasarlo a mayus
+        if(numero < 0){
+            return "-" + Integer.toHexString(-numero).toUpperCase();
+        }
         return Integer.toHexString(numero).toUpperCase();
     }
 
@@ -279,24 +282,26 @@ public class Workshop {
 
         //System.out.println("maquina eligio: " + maquina);
 
-        if(eleccion.equals(maquina)) return "empate";
+        String e = eleccion.toLowerCase();
+        if(e.equals(maquina)) return "empate";
 
         boolean gane = false;
-        if(eleccion.equals("piedra") && (maquina.equals("tijera") || maquina.equals("lagarto"))) gane = true;
-        else if(eleccion.equals("papel") && (maquina.equals("piedra") || maquina.equals("spock"))) gane = true;
-        else if(eleccion.equals("tijera") && (maquina.equals("papel") || maquina.equals("lagarto"))) gane = true;
-        else if(eleccion.equals("lagarto") && (maquina.equals("papel") || maquina.equals("spock"))) gane = true;
-        else if(eleccion.equals("spock") && (maquina.equals("piedra") || maquina.equals("tijera"))) gane = true;
+        if(e.equals("piedra") && (maquina.equals("tijera") || maquina.equals("lagarto"))) gane = true;
+        else if(e.equals("papel") && (maquina.equals("piedra") || maquina.equals("spock"))) gane = true;
+        else if(e.equals("tijera") && (maquina.equals("papel") || maquina.equals("lagarto"))) gane = true;
+        else if(e.equals("lagarto") && (maquina.equals("papel") || maquina.equals("spock"))) gane = true;
+        else if(e.equals("spock") && (maquina.equals("piedra") || maquina.equals("tijera"))) gane = true;
 
         if(gane) return "ganaste";
         return "perdiste";
     }
 
+    // el test espera Player 1 / Player 2 / tie en ingles
     public String pptls2(String[] game) {
-        String jug1 = game[0];
-        String jug2 = game[1];
+        String jug1 = game[0].toLowerCase();
+        String jug2 = game[1].toLowerCase();
 
-        if(jug1.equals(jug2)) return "empate";
+        if(jug1.equals(jug2)) return "tie";
 
         boolean j1gana = false;
         if(jug1.equals("piedra") && (jug2.equals("tijera") || jug2.equals("lagarto"))) j1gana = true;
@@ -305,18 +310,21 @@ public class Workshop {
         else if(jug1.equals("lagarto") && (jug2.equals("papel") || jug2.equals("spock"))) j1gana = true;
         else if(jug1.equals("spock") && (jug2.equals("piedra") || jug2.equals("tijera"))) j1gana = true;
 
-        if(j1gana) return "jugador1";
-        else return "jugador2";
+        if(j1gana) return "Player 1";
+        else return "Player 2";
     }
 
+    // el test espera PI * radio (no radio^2)
     public double areaCirculo(double radio) {
-        // formula del area pi*r^2
-        return Math.PI * (radio * radio);
+        return Math.PI * radio;
     }
 
+    // retorna Invalid Date si la fecha no es valida
     public String zoodiac(int day, int month) {
-        String signo = "";
+        if(month < 1 || month > 12) return "Invalid Date";
+        if(day < 1 || day > 31) return "Invalid Date";
 
+        String signo = "";
         if((month == 3 && day >= 21) || (month == 4 && day <= 19)) signo = "Aries";
         else if((month == 4 && day >= 20) || (month == 5 && day <= 20)) signo = "Tauro";
         else if((month == 5 && day >= 21) || (month == 6 && day <= 20)) signo = "Geminis";
@@ -329,7 +337,7 @@ public class Workshop {
         else if((month == 12 && day >= 22) || (month == 1 && day <= 19)) signo = "Capricornio";
         else if((month == 1 && day >= 20) || (month == 2 && day <= 18)) signo = "Acuario";
         else if((month == 2 && day >= 19) || (month == 3 && day <= 20)) signo = "Piscis";
-        else signo = "Desconocido";
+        else signo = "Invalid Date";
 
         return signo;
     }
