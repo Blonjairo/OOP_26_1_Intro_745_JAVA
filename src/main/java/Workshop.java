@@ -128,32 +128,44 @@ public class Workshop {
         return nuevo;
     }
 
+    // fix: manejar posiciones negativas con doble modulo
     public int[] rotarArreglo(int[] arreglo, int posiciones) {
         if(arreglo.length == 0) return arreglo;
         int n = arreglo.length;
-        int rot = posiciones % n;
+        int rot = ((posiciones % n) + n) % n;
         int[] rotado = new int[n];
         for(int i = 0; i < n; i++) rotado[(i + rot) % n] = arreglo[i];
         return rotado;
     }
 
+    // cuenta code points para manejar unicode
     public int contarCaracteres(String cadena) {
-        return cadena.length();
+        return (int) cadena.codePoints().count();
     }
 
+    // invertir usando code points para unicode
     public String invertirCadena(String cadena) {
-        return new StringBuilder(cadena).reverse().toString();
+        int[] cp = cadena.codePoints().toArray();
+        StringBuilder sb = new StringBuilder();
+        for(int i = cp.length - 1; i >= 0; i--) sb.appendCodePoint(cp[i]);
+        return sb.toString();
     }
 
     public boolean esPalindromo(String cadena) {
         String s = cadena.toLowerCase().replaceAll("[^a-z0-9]", "");
-        String rev = new StringBuilder(s).reverse().toString();
-        return s.equals(rev);
+        int[] cp = s.codePoints().toArray();
+        int izq = 0, der = cp.length - 1;
+        while(izq < der){
+            if(cp[izq] != cp[der]) return false;
+            izq++; der--;
+        }
+        return true;
     }
 
+    // split por cualquier espacio incluyendo tabs y newlines
     public int contarPalabras(String cadena) {
         if(cadena == null || cadena.trim().length() == 0) return 0;
-        return cadena.trim().split("[\\s]+").length;
+        return cadena.trim().split("[\\s,;.!?]+").length;
     }
 
     public String convertirAMayusculas(String cadena) {
@@ -174,14 +186,7 @@ public class Workshop {
 
     public boolean validarCorreoElectronico(String correo) {
         if(correo == null || correo.length() == 0) return false;
-        int pos = correo.indexOf("@");
-        if(pos <= 0) return false;
-        if(correo.indexOf("@", pos + 1) != -1) return false;
-        String dominio = correo.substring(pos + 1);
-        if(!dominio.contains(".") || dominio.startsWith(".") || dominio.endsWith(".")) return false;
-        int ultimoPunto = dominio.lastIndexOf(".");
-        if(dominio.substring(ultimoPunto + 1).length() < 2) return false;
-        return true;
+        return correo.matches("^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$");
     }
 
     public double promedioLista(List<Integer> lista) {
@@ -204,21 +209,21 @@ public class Workshop {
     public String jugarPiedraPapelTijeraLagartoSpock(String eleccion) {
         String[] jugadas = {"piedra", "papel", "tijera", "lagarto", "spock"};
         String maquina = jugadas[new Random().nextInt(jugadas.length)];
-        String e = eleccion.toLowerCase();
-        if(e.equals(maquina)) return "empate";
+        String e = eleccion.toLowerCase().trim();
+        if(e.equals(maquina)) return "Empate";
         boolean gane = false;
         if(e.equals("piedra") && (maquina.equals("tijera") || maquina.equals("lagarto"))) gane = true;
         else if(e.equals("papel") && (maquina.equals("piedra") || maquina.equals("spock"))) gane = true;
         else if(e.equals("tijera") && (maquina.equals("papel") || maquina.equals("lagarto"))) gane = true;
         else if(e.equals("lagarto") && (maquina.equals("papel") || maquina.equals("spock"))) gane = true;
         else if(e.equals("spock") && (maquina.equals("piedra") || maquina.equals("tijera"))) gane = true;
-        return gane ? "ganaste" : "perdiste";
+        return gane ? "Ganaste" : "Perdiste";
     }
 
     public String pptls2(String[] game) {
-        String jug1 = game[0].toLowerCase();
-        String jug2 = game[1].toLowerCase();
-        if(jug1.equals(jug2)) return "tie";
+        String jug1 = game[0].toLowerCase().trim();
+        String jug2 = game[1].toLowerCase().trim();
+        if(jug1.equals(jug2)) return "Empate";
         boolean j1gana = false;
         if(jug1.equals("piedra") && (jug2.equals("tijera") || jug2.equals("lagarto"))) j1gana = true;
         else if(jug1.equals("papel") && (jug2.equals("piedra") || jug2.equals("spock"))) j1gana = true;
@@ -232,8 +237,11 @@ public class Workshop {
         return Math.PI * radio;
     }
 
+    // valida dias por mes para no aceptar fechas imposibles tipo feb 30
     public String zoodiac(int day, int month) {
-        if(month < 1 || month > 12 || day < 1 || day > 31) return "Invalid Date";
+        if(month < 1 || month > 12 || day < 1) return "Invalid Date";
+        int[] diasPorMes = {31,29,31,30,31,30,31,31,30,31,30,31};
+        if(day > diasPorMes[month - 1]) return "Invalid Date";
         if((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "Aries";
         if((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "Tauro";
         if((month == 5 && day >= 21) || (month == 6 && day <= 20)) return "Geminis";
